@@ -13,11 +13,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(
-    title="portrainer-control",
-    description="",
-    lifespan=lifespan
-)
+app = FastAPI(title="portrainer-control", description="", lifespan=lifespan)
 
 origins = ["*"]
 app.add_middleware(

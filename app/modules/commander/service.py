@@ -1,62 +1,35 @@
-from typing import Optional
-import requests
-import json
+from typing import Annotated
+
+from settings import settings
+
+from modules.commander import schemas as models
+from modules.commander.core import CoreRequests
 
 
 class AgentsCommander():
 
-    def __init__(self, host: str, port: int):
-        self.agent_url = f"http://{host}:{port}/"
-        self.access_token = ""
-
-    def auth(
+    def __init__(
         self,
-        login: str,
-        password: str,
+        portrainer_url: str = settings.portrainer_url,
+        access_token: str = settings.PORTAINER_ACCESS_KEY,
     ):
-        response = requests.post(
-            self.agent_url + "/api/auth", {
-                "Username": login,
-                "Password": password,
-            }, timeout=60.0
+        # Core manager of portrainer\dockerAPI server
+        self.request_manager = CoreRequests(
+            portrainer_url=portrainer_url,
+            access_token=access_token,
         )
-        return response
 
-    def stop_container(self):
-        pass
+    def get_environments(self):
+        endpoints = self.request_manager.get_all_endpoints()
 
-    def start_container(
-        self,
-        agent_url: str,
-        container_name: str,
-    ):
-        pass
-        # requests.post()
+        return [models.Environment(id=endpoint.get("Id"), name=endpoint.get("Name")) for endpoint in endpoints]
 
-    def get_all_environments(
-        self
-    ):
-        response = requests.get(
-            url=self.agent_url + "/api/endpoint_groups", headers={"X-API-Key": self.access_token},
-            data={"all": True}, timeout=60.0
-        )    
-        return response.text
+    def get_containers(self, env_id: int):
+        containers = self.request_manager.get_all_containers_by_env_id(env_id=env_id)
 
-    def get_all_endpoints(
-        self,    
-    ):
-        response = requests.get(
-            url=self.agent_url + f"/api/endpoints", headers={"X-API-Key": self.access_token},
-            data={"all": True}, timeout=60.0
-        )
-        return json.loads(response.text)
-            
-    def get_all_containers_by_env_id(
-        self,
-        env_id: int,
-    ):
-        response = requests.get(
-            url=self.agent_url + f"/api/endpoints/{env_id}/docker/containers/json", headers={"X-API-Key": self.access_token},
-            data={"all": True}, timeout=60.0
-        )
-        return response.text
+        return [
+            models.Container(
+                id=container.get("Id"), names=container.get("Names"), image=container.get("Image"),
+                state=container.get("State")
+            ) for container in containers
+        ]
