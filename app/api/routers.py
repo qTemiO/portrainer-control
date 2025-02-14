@@ -1,5 +1,5 @@
-from modules.commander.router import router
+from modules.commander.router import router as commander_router
 
 all_routers = [
-    router
+    commander_router
 ]

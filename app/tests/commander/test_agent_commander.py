@@ -6,20 +6,17 @@ from modules.commander.service import AgentsCommander
 def test_agents_commander():
     commander = AgentsCommander()
 
-    endpoints = commander.get_all_endpoints()
+    endpoints = commander.get_environments()
 
-    assert endpoints != {}
+    assert endpoints is not {}
 
-    ids = [subresponse.get("Id") for subresponse in endpoints]
-    names = [subresponse.get("Name") for subresponse in endpoints]
+    ids = [environment.id for environment in endpoints]
+    names = [environment.name for environment in endpoints]
 
-    assert ids != []
-    assert names != []
+    assert ids is not []
+    assert names is not []
 
     for id_ in ids:
-        containers = commander.get_all_containers_by_env_id(id_)
+        containers = commander.get_containers(id_)
 
-        for container in containers:
-
-            a = container
-            x = a
+        assert containers is not []

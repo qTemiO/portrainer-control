@@ -37,3 +37,43 @@ class CoreRequests():
             verify=False,
         )
         return json.loads(response.text)
+
+    def stop_container(
+            self,
+            env_id: int,
+            container_id: str
+        ):
+        response = requests.post(
+            url=self.portrainer_url + f"/api/endpoints/{env_id}/docker/containers/{container_id}/stop",
+            headers={"X-API-Key": self.access_token},
+            timeout=60.0,
+            verify=False,
+        )
+        return response
+        
+    def start_container(
+            self,
+            env_id: int,
+            container_id: str
+        ):
+        response = requests.post(
+            url=self.portrainer_url + f"/api/endpoints/{env_id}/docker/containers/{container_id}/start",
+            headers={"X-API-Key": self.access_token},
+            timeout=60.0,
+            verify=False,
+        )
+        return response
+        
+    def restart_container(
+            self,
+            env_id: int,
+            container_id: str
+        ):
+        response = requests.post(
+            url=self.portrainer_url + f"/api/endpoints/{env_id}/docker/containers/{container_id}/restart",
+            headers={"X-API-Key": self.access_token},
+            timeout=60.0,
+            verify=False,
+        )
+        return response
+        

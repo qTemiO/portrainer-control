@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     # Service
     HOST: Optional[str] = "0.0.0.0"
-    PORT: Optional[int] = 8102
+    PORT: Optional[int] = 8101
 
     # Portainer base
     PORTAINER_ACCESS_KEY: str
