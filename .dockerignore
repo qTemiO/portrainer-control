@@ -1,0 +1,7 @@
+app/tests
+.env.dev
+venv
+.ptlintrc
+.style.yapf
+.gitignore
+.vscode
