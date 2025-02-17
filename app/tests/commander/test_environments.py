@@ -1,5 +1,3 @@
-from loguru import logger
-
 from modules.commander.service import AgentsCommander
 
 
@@ -18,5 +16,4 @@ def test_agents_commander():
 
     for id_ in ids:
         containers = commander.get_containers(id_)
-
         assert containers is not []

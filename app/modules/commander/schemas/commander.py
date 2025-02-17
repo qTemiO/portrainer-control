@@ -11,3 +11,8 @@ class Container(BaseModel):
     state: str
     names: list[str]
     image: str
+
+
+class Registry(BaseModel):
+    id: int
+    name: str
