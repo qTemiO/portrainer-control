@@ -70,18 +70,44 @@ class AgentsCommander():
 
         return [models.Registry(id=registry.get("Id"), name=registry.get("Name")) for registry in registries]
 
-    def load_image_from_tar_file(
+    def load_image_from_tar_file_to_registry(
         self,
         name: str,
         tag: str,
         uploaded_file_path: str,
-        main_env_id: int,
+        registry_address: str,
+        main_env_id: int = 2,
     ):
+        # Step 1st load to server
         response = self.request_manager.load_image_to_main_server(
             uploaded_file_path=uploaded_file_path, name=name, tag=tag, main_env_id=main_env_id
         )
 
-        if response.status_code == 200:
-            return ServiceStatuses.HTTP_OK
-        else:
-            return ServiceStatuses.HTTP_PORTAINER_UNAVAILIABLE
+        if response.status_code != 200:
+            error = "Error creating image from file"
+            logger.error(error)
+            return ServiceStatuses.HTTP_PORTAINER_UNAVAILIABLE, error
+
+        # Step 2nd tag like registry
+        response = self.request_manager.tag_image(
+            new_name=name, 
+            name=name, 
+            registry_address=registry_address, 
+            new_tag=tag, 
+            tag=tag
+        )
+
+        if response.status_code != 201:
+            error = "Error tagging image"
+            logger.error(error)
+            return ServiceStatuses.HTTP_PORTAINER_UNAVAILIABLE, error
+
+        # Step 3rd push to registry
+        response = self.request_manager.push_image(name=name, tag=tag, repository=registry_address)
+
+        if response.status_code != 200:
+            error = "Error pushing image"
+            logger.error(error)
+            return ServiceStatuses.HTTP_PORTAINER_UNAVAILIABLE, error
+
+        return ServiceStatuses.HTTP_OK, "success"

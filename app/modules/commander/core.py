@@ -95,8 +95,8 @@ class CoreRequests():
         main_env_id: int = 2,
     ):
         """
-        Loading image to main (command) environment
-
+        Loading image to main (local) environment
+        First step of loading in registry
         Args:
             name: Name of loading image,
             tag: A tag of loading image,
@@ -121,7 +121,7 @@ class CoreRequests():
         self,
         new_name: str,
         name: str,
-        registry_adress: Optional[str] = None,
+        registry_address: Optional[str] = None,
         new_tag: Optional[str] = None,
         tag: Optional[str] = None,
         main_env_id: int = 2,
@@ -133,7 +133,7 @@ class CoreRequests():
         """
         image_full_name = f"{name}:{tag}" if tag else f"{name}:latest"
 
-        repo = f"{registry_adress}/{new_name}" if registry_adress else f"{new_name}"
+        repo = f"{registry_address}/{new_name}" if registry_address else f"{new_name}"
         payload = {
             "repo": repo,
         }
@@ -155,10 +155,14 @@ class CoreRequests():
         self,
         name: str,
         tag: Optional[str],
+        repository: str,
         main_env_id: int = 2,
     ):
+        """
+        Push image with given host/image:tag to provided repository
+        """
         if "/" not in name:
-            return None
+            name = repository + "/" + name
         payload = {}
 
         if tag:
@@ -169,7 +173,7 @@ class CoreRequests():
             "username": "",
             "password": "",
             "email": "",
-            "serveraddress": "https://localhost:5000"
+            "serveraddress": "https://" + repository,
         }
         auth_json = json.dumps(auth_data).encode("utf-8")
         auth_header = base64.urlsafe_b64encode(auth_json).decode("utf-8")

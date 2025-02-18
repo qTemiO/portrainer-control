@@ -7,6 +7,4 @@ def test_push():
 
     name_with_registry = "localhost:5000/example_to_registry:test"
     response = commander.request_manager.push_image(name=name_with_registry, tag="test")
-
-
-    a = 2 
+    assert response
