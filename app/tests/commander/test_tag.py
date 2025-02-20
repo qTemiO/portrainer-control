@@ -16,4 +16,7 @@ def test_tag():
     new_image_name = "example_to_registry"
     new_image_tag = "test"
 
-    commander.request_manager.tag_image(new_name=new_image_name, name=image_name, registry_adress=new_registry_name, new_tag=new_image_tag, tag=image_tag)
+    commander.request_manager.tag_image(
+        new_name=new_image_name, name=image_name, registry_adress=new_registry_name, new_tag=new_image_tag,
+        tag=image_tag
+    )

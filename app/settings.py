@@ -17,9 +17,18 @@ class Settings(BaseSettings):
     PORTRAINER_HOST: str
     PORTRAINER_PORT: int
 
+    # Registry
+    REGISTRY_PROTOCOL: str
+    REGISTRY_HOST: str
+    REGISTRY_PORT: int
+
     @property
     def portrainer_url(self):
         return f"{self.PORTRAINER_PROTOCOL}://{self.PORTRAINER_HOST}:{self.PORTRAINER_PORT}"
+
+    @property
+    def registry_url(self):
+        return f"{self.REGISTRY_PROTOCOL}://{self.REGISTRY_HOST}:{self.REGISTRY_PORT}"
 
 
 settings = Settings()

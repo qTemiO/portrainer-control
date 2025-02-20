@@ -24,14 +24,16 @@ status_details = {
     "422": "Wrong data sent",
 }
 
+
 async def save_file(file: UploadFile):
     filepath = f"../tmp/{file.filename}"
-    
+
     async with aiofiles.open(filepath, 'wb') as out_file:
         content = await file.read()
         await out_file.write(content)
 
     return filepath
+
 
 async def delete_file(filepath: str):
     os.unlink(filepath)
@@ -40,6 +42,7 @@ async def delete_file(filepath: str):
 def form_response(status_code: int, details: Optional[str] = None) -> OperationsResponse:
     details = details if details else status_details.get(f"{status_code}")
     return OperationsResponse(status_code=status_code, details=details)
+
 
 def from_form_to_pydantic(item: str):
     try:
