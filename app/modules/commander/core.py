@@ -6,6 +6,8 @@ from typing import Optional
 from loguru import logger
 import requests
 
+from modules.commander import schemas as models
+
 
 class CoreRequests():
 
@@ -16,6 +18,29 @@ class CoreRequests():
     ):
         self.portrainer_url = portrainer_url
         self.access_token = access_token
+
+    def _resolve_host_config(self, item: models.ContainersCreatePayload):
+        host_config = {}
+
+        port_bindings = {}
+        for port in item.ports:
+            inner = port.split(":")[1]
+            outer = port.split(":")[0]
+
+            port_bindings[f"{inner}/tcp"] = [{"HostPort": f"{outer}"}]
+        host_config["PortBindings"] = port_bindings
+
+        return host_config
+
+    def _resolve_exposing_ports(self, item: models.ContainersCreatePayload):
+        ports = item.ports
+        exposed_ports = {}
+
+        for port in ports:
+            inner = port.split(":")[1]
+            exposed_ports[f"{inner}/tcp"] = {}
+
+        return exposed_ports
 
     def get_all_images_registry(self, registry_url: Optional[str] = None) -> dict:
         response = requests.get(
@@ -38,17 +63,17 @@ class CoreRequests():
         return json.loads(response.text)
 
     def create_environment(self, name: str, url: str) -> requests.Response:
+        form_data = {"Name": name, "EndpointCreationType": 2, "GroupID": 1, "TagIds": [], "URL": f"tcp://{url}"}
+
         response = requests.post(
             url=self.portrainer_url + "/api/endpoints",
-            headers={"X-API-Key": self.access_token},
-            files={
-                "Name": name,
-                "EndpointCreationType": 1,
-                "URL": url
+            headers={
+                "X-API-Key": self.access_token,
             },
+            data=form_data,
             timeout=60.0,
-            verify=False,
         )
+
         return response
 
     def get_all_containers_by_env_id(
@@ -71,14 +96,27 @@ class CoreRequests():
             logger.error(f"Json error {error}")
         return data
 
-    def create_container(self, env_id: int, image_name: str, registry_url: str) -> requests.Response:
+    def create_container(self, item: models.ContainersCreatePayload) -> requests.Response:
+        registry_url = f"{item.registry_host}:{item.registry_port}"
+
+        exposed_ports = self._resolve_exposing_ports(item=item)
+        host_config = self._resolve_host_config(item=item)
+
         payload = {
-            "Image": f"{registry_url}/{image_name}",
+            "Image": f"{registry_url}/{item.image_name}:{item.image_tag}",
+            "Cmd": item.cmd,
+            "HostConfig": host_config,
+            "ExposedPorts": exposed_ports,
         }
 
         response = requests.post(
-            url=self.portrainer_url + f"/api/endpoints/{env_id}/docker/containers/create",
-            headers={"X-API-Key": self.access_token},
+            url=self.portrainer_url +
+            f"/api/endpoints/{item.env_id}/docker/containers/create?name={item.container_name}",
+            headers={
+                "X-API-Key": self.access_token,
+                "Content-Type": "application/json",
+            },
+            data=json.dumps(payload),
             timeout=60.0,
             verify=False,
         )

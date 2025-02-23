@@ -51,12 +51,12 @@ class AgentsCommander():
     def create_environment(self, name: str, url: str):
         try:
             response = self.request_manager.create_environment(name=name, url=url)
-            if response.statis_code is 200:
+            if response.status_code == 200:
                 return ServiceStatuses.HTTP_OK.value, None
             else:
                 return ServiceStatuses.HTTP_UNPROCESSABLE_ENTITY.value, "Name or URL is invalid"
         except Exception as error:
-            logger.error(f"Error occured creating endpoint {error}")
+            logger.error(f"Error occured creating endpoint {error.__traceback__}")
             return ServiceStatuses.HTTP_PORTAINER_UNAVAILIABLE.value, f"Error occured creating endpoint {error}"
 
     def get_containers(self, env_id: int):
@@ -72,14 +72,10 @@ class AgentsCommander():
             ) for container in containers
         ]
 
-    def create_container(self, env_id: int, image_name: str, registry_host: str,
-                         registry_port: int) -> tuple[int, Optional[str]]:
+    def create_container(self, item: models.ContainersCreatePayload) -> tuple[int, Optional[str]]:
         try:
-            registry_url = f"https://{registry_host}:{registry_port}/"
-            response = self.request_manager.create_container(
-                env_id=env_id, image_name=image_name, registry_url=registry_url
-            )
-            if response.status_code is 201:
+            response = self.request_manager.create_container(item)
+            if response.status_code == 201 or response.status_code == 200:
                 return ServiceStatuses.HTTP_OK.value, None
             else:
                 return ServiceStatuses.HTTP_UNPROCESSABLE_ENTITY.value, "Error creating container"
@@ -90,7 +86,7 @@ class AgentsCommander():
     def stop_container(self, env_id: int, container_id: str) -> tuple[int, Optional[str]]:
         try:
             response = self.request_manager.stop_container(env_id=env_id, container_id=container_id)
-            if response.status_code is 204:
+            if response.status_code == 204:
                 return ServiceStatuses.HTTP_OK.value, None
             else:
                 return ServiceStatuses.HTTP_UNPROCESSABLE_ENTITY.value, "Stopping container not found"
@@ -101,7 +97,7 @@ class AgentsCommander():
     def start_container(self, env_id: int, container_id: str) -> tuple[int, Optional[str]]:
         try:
             response = self.request_manager.start_container(env_id=env_id, container_id=container_id)
-            if response.status_code is 204:
+            if response.status_code == 204:
                 return ServiceStatuses.HTTP_OK.value, None
             else:
                 return ServiceStatuses.HTTP_UNPROCESSABLE_ENTITY.value, "Starting container not found"
@@ -112,7 +108,7 @@ class AgentsCommander():
     def restart_container(self, env_id: int, container_id: str) -> tuple[int, Optional[str]]:
         try:
             response = self.request_manager.restart_container(env_id=env_id, container_id=container_id)
-            if response.status_code is 204:
+            if response.status_code == 204:
                 return ServiceStatuses.HTTP_OK.value, None
             else:
                 return ServiceStatuses.HTTP_UNPROCESSABLE_ENTITY.value, "Restarting container not found"
@@ -123,7 +119,7 @@ class AgentsCommander():
     def delete_container(self, env_id: int, container_id: str) -> tuple[int, Optional[str]]:
         try:
             response = self.request_manager.delete_container(env_id=env_id, container_id=container_id)
-            if response.status_code is 204:
+            if response.status_code == 204:
                 return ServiceStatuses.HTTP_OK.value, None
             else:
                 return ServiceStatuses.HTTP_UNPROCESSABLE_ENTITY.value, "Restarting container not found"

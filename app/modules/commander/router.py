@@ -32,12 +32,9 @@ def get_containers(env_id: int, service: AgentsCommander = Depends()) -> list[mo
 
 @router.post("/{environment_id}/containers/create")
 def create_container(
-    environment_id: int, image_name: str, registry_host: str = settings.REGISTRY_HOST,
-    registry_port: int = settings.REGISTRY_PORT, service: AgentsCommander = Depends()
+    item: models.ContainersCreatePayload, service: AgentsCommander = Depends()
 ) -> models.OperationsResponse:
-    status_code, details = service.create_container(
-        env_id=environment_id, image_name=image_name, registry_host=registry_host, registry_port=registry_port
-    )
+    status_code, details = service.create_container(item=item)
     return utils.form_response(status_code=status_code, details=details)
 
 
