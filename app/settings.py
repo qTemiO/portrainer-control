@@ -22,6 +22,14 @@ class Settings(BaseSettings):
     REGISTRY_HOST: str
     REGISTRY_PORT: int
 
+    # Opensearch
+    OPENSEARCH_DASHBOARDS_PROTOCOL: str
+    OPENSEARCH_DASHBOARDS_HOST: str
+    OPENSEARCH_DASHBOARDS_PORT: int
+
+    OPENSEARCH_DASHBOARDS_RO_LOGIN: str
+    OPENSEARCH_DASHBOARDS_RO_PASSWORD: str
+
     @property
     def portrainer_url(self):
         return f"{self.PORTRAINER_PROTOCOL}://{self.PORTRAINER_HOST}:{self.PORTRAINER_PORT}"
@@ -29,6 +37,10 @@ class Settings(BaseSettings):
     @property
     def registry_url(self):
         return f"{self.REGISTRY_PROTOCOL}://{self.REGISTRY_HOST}:{self.REGISTRY_PORT}"
+
+    @property
+    def opensearch_url(self):
+        return f"{self.OPENSEARCH_DASHBOARDS_PROTOCOL}://{self.OPENSEARCH_DASHBOARDS_HOST}:{self.OPENSEARCH_DASHBOARDS_PORT}"
 
 
 settings = Settings()
